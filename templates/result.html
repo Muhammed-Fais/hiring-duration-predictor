@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - HR Analytics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fdfcfb; /* Consistent very light warm background */
+            color: #495057; /* Softer dark gray for text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 550px;
+            border-top: 5px solid #17a2b8; /* Teal/Turquoise top border for consistency */
+        }
+        h1 {
+            color: #e85a4f; /* Coral Red for heading */
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 2.2em;
+        }
+        p {
+            font-size: 1.25em;
+            margin-bottom: 20px; /* Adjusted margin */
+            color: #5a6268;
+            line-height: 1.6;
+        }
+        .prediction-value {
+            color: #17a2b8; /* Teal/Turquoise for the prediction value */
+            font-size: 3.5em;
+            font-weight: 700;
+            display: block;
+            margin: 15px 0 35px 0; /* Adjusted margin */
+            text-shadow: 0px 2px 4px rgba(23, 162, 184, 0.2);
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 25px; /* Adjusted margin */
+            padding: 14px 30px;
+            background-color: #fd7e14; /* Warm Orange for button */
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(253, 126, 20, 0.2);
+        }
+        a.button:hover {
+            background-color: #e85a4f; /* Coral Red on hover - consistent with h1 */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(232, 90, 79, 0.3);
+        }
+         /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 30px 25px;
+                 border-top-width: 4px;
+            }
+            h1 { font-size: 1.9em; }
+            p { font-size: 1.1em; }
+            .prediction-value { font-size: 2.8em; }
+            a.button { width: calc(100% - 50px); padding: 12px 20px; font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Prediction Result! 🎉</h1>
+        <p>The model estimates the Time to Fill for this requisition will be approximately:</p>
+        <span class="prediction-value">{{ prediction }} days</span>
+        <a href="{{ url_for('home') }}" class="button">🔄 Predict Another</a>
+    </div>
+</body>
+</html> 

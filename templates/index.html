@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Time to Fill - HR Analytics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdfcfb; /* Very light warm background */
+            color: #495057; /* Softer dark gray for text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 750px;
+            border-top: 5px solid #fd7e14; /* Warm Orange top border for container */
+        }
+        h1 {
+            text-align: center;
+            color: #e85a4f; /* Coral Red for heading */
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #5a6268; /* Slightly lighter than body text */
+        }
+        input[type='text'], input[type='number'], textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type='text']:focus, input[type='number']:focus, textarea:focus {
+            border-color: #17a2b8; /* Teal/Turquoise border on focus */
+            box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25); /* Glow for focus */
+            outline: none;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        input[type='submit'] {
+            background-color: #17a2b8; /* Teal/Turquoise for submit button */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block;
+            width: auto;
+            margin: 20px auto 0 auto;
+        }
+        input[type='submit']:hover {
+            background-color: #138496; /* Darker Teal/Turquoise */
+            transform: translateY(-2px);
+        }
+        .feature-group {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f3f5; /* Lighter separator */
+        }
+        .feature-group:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .feature-group h2 {
+            font-size: 1.4em;
+            color: #fd7e14; /* Warm Orange for subheadings */
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #17a2b8; /* Teal/Turquoise accent under subheadings */
+            display: inline-block;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+                border-top-width: 4px;
+            }
+            h1 { font-size: 1.8em; }
+            .feature-group h2 { font-size: 1.2em; }
+            input[type='submit'] { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Predict Time to Fill ✨</h1>
+        <form action="{{ url_for('predict') }}" method="POST">
+
+            <div class="feature-group">
+                <h2>📝 Job Details (Text)</h2>
+                {% for form_name, model_wc_name in raw_text_inputs.items() %}
+                    {% set display_name = form_name.replace('Text', '') %}
+                    {# Heuristic to make display name more readable #}
+                    {% if display_name == 'JobTitle' %} {% set display_name = 'Job Title' %}
+                    {% elif display_name == 'JobDescription' %} {% set display_name = 'Job Description' %}
+                    {% elif display_name == 'CompanyProfile' %} {% set display_name = 'Company Profile' %}
+                    {% endif %}
+                <label for="{{ form_name }}">{{ display_name }}:</label>
+                {% if 'Description' in form_name or 'Profile' in form_name or 'Benefits' in form_name or 'Responsibilities' in form_name %}
+                <textarea id="{{ form_name }}" name="{{ form_name }}" rows="5" placeholder="Enter full {{ display_name.lower() }} here..."></textarea>
+                {% else %}
+                <input type="text" id="{{ form_name }}" name="{{ form_name }}" required placeholder="Enter {{ display_name.lower() }}">
+                {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div class="feature-group">
+                <h2>🔢 Numerical Details</h2>
+                {% for feature in direct_numerical_inputs %}
+                <label for="{{ feature }}">{{ feature.replace('_', ' ') }}:</label>
+                <input type="number" id="{{ feature }}" name="{{ feature }}" step="any" required 
+                       value="{% if feature == 'MinExperience' %}3{% elif feature == 'MaxExperience' %}7{% elif feature == 'AverageSalary' %}80000{% elif feature == 'Company Size' %}750{% elif feature == 'NumberOfSkills' %}7{% else %}15{% endif %}" 
+                       placeholder="e.g. {% if feature == 'MinExperience' %}3{% elif feature == 'MaxExperience' %}7{% elif feature == 'AverageSalary' %}80000{% elif feature == 'Company Size' %}750{% elif feature == 'NumberOfSkills' %}7{% else %}15{% endif %}">
+                {% endfor %}
+            </div>
+
+            <div class="feature-group">
+                <h2>🗂️ Categorical Details</h2>
+                {% for feature in categorical_inputs %}
+                <label for="{{ feature }}">{{ feature.replace('_', ' ') }}:</label>
+                <input type="text" id="{{ feature }}" name="{{ feature }}" required 
+                       value="{% if feature == 'Qualifications' %}Master's Degree{% elif feature == 'Work Type' %}Full-time Remote{% elif feature == 'Role' %}Data Scientist{% elif feature == 'Job Portal' %}Company Careers Page{% elif feature == 'Preference' %}Remote First{% elif feature == 'Country' %}Canada{% else %}General{% endif %}" 
+                       placeholder="Enter {{ feature.replace('_', ' ').lower() }}">
+                {% endfor %}
+            </div>
+            
+            <input type="submit" value="🔮 Predict Now!">
+        </form>
+    </div>
+</body>
+</html> 
